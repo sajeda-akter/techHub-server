@@ -27,7 +27,15 @@ async function run() {
  try{
     await client.connect()
     const addProductCollection=client.db('techhubdb').collection('addProduct')
+    const brandCollection=client.db('techhubdb').collection('brands')
 
+    // get all brand data
+    app.get('/brands',async(req,res)=>{
+        const brandData=brandCollection.find()
+        const brands=await brandData.toArray()
+        res.send(brands)
+
+    })
     // add to product in the database
     app.post('/addProduct',(req,res)=>{
         const add=req.body
