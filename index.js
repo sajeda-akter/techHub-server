@@ -45,8 +45,8 @@ async function run() {
     });
 
     // add to product in the database
-    app.post("/addproduct", (req, res) => {
-      const add = req.body;
+    app.post("/addproduct",async (req, res) => {
+      const add =await req.body;
       const result = addProductCollection.insertOne(add);
       res.send(result);
     });
@@ -103,6 +103,8 @@ async function run() {
       res.send(result);
     });
   } finally {
+    await client.close();
+
   }
 }
 run().catch(console.dir);
