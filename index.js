@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const cors=require('cors')
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port =process.env.PORT || 5000
 
 
@@ -28,6 +28,8 @@ async function run() {
     await client.connect()
     const addProductCollection=client.db('techhubdb').collection('addProduct')
     const brandCollection=client.db('techhubdb').collection('brands')
+    const productCollection=client.db('techhubdb').collection('AllProducts')
+    const reviewCollection=client.db('techhubdb').collection('reviews')
 
     // get all brand data
     app.get('/brands',async(req,res)=>{
@@ -36,12 +38,74 @@ async function run() {
         res.send(brands)
 
     })
+
+    // get all the products in the db
+    app.get('/products',async(req,res)=>{
+        const brandData=productCollection.find()
+        const product=await brandData.toArray()
+        res.send(product)
+
+    })
+
+ 
     // add to product in the database
-    app.post('/addProduct',(req,res)=>{
+    app.post('/addproduct',(req,res)=>{
         const add=req.body
         const result=addProductCollection.insertOne(add);
         res.send(result)
     })
+
+
+    app.get('/addproduct',async(req,res)=>{
+      const brandData=addProductCollection.find()
+      const product=await brandData.toArray()
+      res.send(product)
+
+  })
+
+  // delete the data you have in the db
+  app.delete('/addproduct/:id',async(req,res)=>{
+    const id=req.params.id
+   
+    const query={_id:new ObjectId(id)}
+    const result=await addProductCollection.deleteOne(query)
+    res.send(result)
+  })
+
+  app.get('/addproduct/:id',async(req,res)=>{
+    const id=req.params.id
+    const query={_id:new ObjectId(id)}
+ 
+    const result=await addProductCollection.findOne(query)
+    res.send(result)
+  })
+
+
+  app.put('/addproduct/:id',async(req,res)=>{
+    const id=req.params.id
+    const filter={_id:new ObjectId(id)}
+    const options={upsert:true}
+    const updateProduct=req.body
+    const product={
+      $set:{
+        name:updateProduct.name,
+        brand:updateProduct.brand,
+        img:updateProduct.img,
+        type:updateProduct.type,
+        price:updateProduct.price,
+        rating:updateProduct.rating,
+        description:updateProduct.description
+      }
+    
+    }
+    const result=await addProductCollection.updateOne(filter,product,options)
+    res.send(result)
+  })
+  app.get('/reviews',async(req,res)=>{
+    const review= reviewCollection.find()
+    const result=await review.toArray()
+    res.send(result)
+  })
  }
  finally{
 
