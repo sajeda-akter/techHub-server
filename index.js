@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
@@ -23,6 +24,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
+  
     const addProductCollection = client
       .db("techhubdb")
       .collection("addProduct");
@@ -46,9 +48,8 @@ async function run() {
 
     // add to product in the database
     app.post("/addproduct",async (req, res) => {
-      const add =await req.body;
-      console.log("Result:", result);
-      const result = addProductCollection.insertOne(add);
+      const add = req.body;
+      const result =await addProductCollection.insertOne(add);
       res.send(result);
     });
 
@@ -103,12 +104,15 @@ async function run() {
       const result = await review.toArray();
       res.send(result);
     });
-  } finally {
-    await client.close();
+  } 
+  
+  finally {
+    // await client.close();
 
   }
 }
 run().catch(console.dir);
+
 
 app.get("/", (req, res) => {
   res.send("Welcome to techHub!");
